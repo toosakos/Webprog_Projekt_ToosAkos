@@ -83,7 +83,6 @@ if (isset($_POST['submit'])) {
         $stmt->execute();
         $stmt->close();
 
-
         $createdAt = date("Y-m-d H:i:s", time());
         $sql = "INSERT INTO transactions (currencybase, currencytarget, amountbase, amounttarget, transaction_date, users_id) values (?, ?, ?, ?, ?, ?)";
         $stmt = $conn->prepare($sql);

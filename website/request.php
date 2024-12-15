@@ -24,7 +24,8 @@ for ($i = 0; $i < count($currenciesForUrl); $i++) {
     $curl = curl_init();
 
     curl_setopt_array($curl, [
-        CURLOPT_URL => "https://api.fxratesapi.com/latest?base=" . $currenciesForUrl[$i] . "&currencies=" . $strCurrenciesForUrl . "&amount=1&places=6&format=json",
+        CURLOPT_URL => "https://api.fxratesapi.com/latest?base=" . $currenciesForUrl[$i] . "&currencies="
+            . $strCurrenciesForUrl . "&amount=1&places=6&format=json",
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_FOLLOWLOCATION => true,
         CURLOPT_ENCODING => "",

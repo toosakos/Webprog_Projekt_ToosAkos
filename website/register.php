@@ -25,29 +25,6 @@ if ($exists) {
     exit('Username already exists!');
 }
 
-//wallet base attributes:
-$startingAmount = 0;
-$baseCurrencyCode = "RON";
-$createdAt = date("Y-m-d H:i:s", time());
-
-//$sql = 'INSERT INTO wallet (amount, currency_code, updated_at) VALUES (?, ?, ?)';
-//$stmt = $conn->prepare($sql);
-//$stmt->bind_param('dss', $startingAmount, $baseCurrencyCode, $createdAt );
-//$stmt->execute();
-//$stmt->close();
-//
-//$sql = 'SELECT id FROM wallet ORDER BY id DESC LIMIT 1';
-//$newWalletId = $conn->query($sql)->fetch_assoc()['id'];
-//
-//$sql = 'INSERT INTO users (name, email, password, wallet_id) VALUES (?, ?, ?, ?)';
-//$stmt = $conn->prepare($sql);
-//$stmt->bind_param('sssi', $newUsername, $email, $password, $newWalletId );
-//$stmt->execute();
-//$stmt->close();
-//
-//$sql = 'SELECT id FROM users ORDER BY id DESC LIMIT 1';
-//$newUserId = $conn->query($sql)->fetch_assoc()['id'];
-
 $email = $_POST['email'];
 $password = password_hash($_POST["new-password"], PASSWORD_DEFAULT);
 

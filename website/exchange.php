@@ -6,6 +6,12 @@ if (!isset($_SESSION['loggedin']) && !$_SESSION['loggedin']) {
 }
 
 $targetCurrency = "";
+$error = "none";
+$bruh = "none";
+if (isset($_SESSION["bruh"])){
+    $bruh = $_SESSION["bruh"];
+    unset($_SESSION["bruh"]);
+}
 
 $db = new Database();
 $conn = $db->connect();
@@ -21,12 +27,6 @@ $stmt->close();
 
 $walletCurrencies = [];
 $walletAmounts = [];
-$error = "none";
-$bruh = "none";
-if (isset($_SESSION["bruh"])){
-    $bruh = $_SESSION["bruh"];
-    unset($_SESSION["bruh"]);
-}
 $status = "";
 
 while ($row = $result->fetch_assoc()) {
@@ -75,7 +75,6 @@ if (isset($_POST["submit"])) {
         $oldAmmount = $walletAmounts[$baseCurrency] - $amount;
         $newAmmount = $amountWallet + $resultConvert;
 
-
         $sql = "UPDATE wallet SET amount = ? WHERE users_id = ? and currency_code = ?";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param('dis', $oldAmmount, $id, $baseCurrency);
@@ -87,8 +86,6 @@ if (isset($_POST["submit"])) {
         $stmt->bind_param('dis', $newAmmount, $id, $targetCurrency);
         $stmt->execute();
         $stmt->close();
-
-
 
         $createdAt = date("Y-m-d H:i:s", time());
         $sql = "INSERT INTO transactions (currencybase, currencytarget, amountbase, amounttarget, transaction_date, users_id) values (?, ?, ?, ?, ?, ?)";
