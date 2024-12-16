@@ -35,6 +35,22 @@ $db = new Database();
 $conn = $db->connect();
 $id = $_SESSION['id'];
 
+//tranzakciok lekérése
+$sql = "SELECT * FROM transactions where users_id = ?";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("i", $id);
+$stmt->execute();
+$result = $stmt->get_result();
+$stmt->close();
+
+$transactions = [];
+
+while ($row = $result->fetch_assoc()) {
+    $transactions[] = $row;
+}
+
+//print_r($transactions);
+
 //wallet lekérése
 
 $sql = "SELECT * FROM wallet where users_id = ?";
@@ -276,6 +292,32 @@ if (isset($_POST['submit2'])) {
                 <tr>
                     <td style="padding: 10px; border: 1px solid #ccc;"><?= $code ?></td>
                     <td style="padding: 10px; border: 1px solid #ccc;"><?= number_format($amount, 2) ?></td>
+                </tr>
+            <?php endforeach; ?>
+            </tbody>
+        </table>
+    </div>
+    <!-- Transactions Table -->
+    <div style="margin-top: 30px; max-width: 600px; margin: auto;">
+        <h3 style="text-align: center;">Tranzakciók:</h3>
+        <table style="width: 100%; border: 1px solid #ccc; border-collapse: collapse; text-align: left;">
+            <thead>
+            <tr style="background-color: #333; color: white;">
+                <th style="padding: 10px; border: 1px solid #ccc;">Alap valuta</th>
+                <th style="padding: 10px; border: 1px solid #ccc;">Cél valuta</th>
+                <th style="padding: 10px; border: 1px solid #ccc;">Alap összeg</th>
+                <th style="padding: 10px; border: 1px solid #ccc;">Cél összeg</th>
+                <th style="padding: 10px; border: 1px solid #ccc;">Dátum</th>
+            </tr>
+            </thead>
+            <tbody>
+            <?php foreach ($transactions as $transaction): ?>
+                <tr>
+                    <td style="padding: 10px; border: 1px solid #ccc;"><?= $transaction["currencybase"] ?></td>
+                    <td style="padding: 10px; border: 1px solid #ccc;"><?= $transaction["currencytarget"] ?></td>
+                    <td style="padding: 10px; border: 1px solid #ccc;"><?= number_format($transaction["amountbase"], 2) ?></td>
+                    <td style="padding: 10px; border: 1px solid #ccc;"><?= number_format($transaction["amounttarget"], 2) ?></td>
+                    <td style="padding: 10px; border: 1px solid #ccc;"><?= $transaction["transaction_date"] ?></td>
                 </tr>
             <?php endforeach; ?>
             </tbody>
