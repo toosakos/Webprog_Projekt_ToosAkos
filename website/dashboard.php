@@ -251,7 +251,7 @@ if (isset($_POST['submit2'])) {
                 <label for="amount" style="font-weight: bold;">Add meg az összeget:</label>
                 <input type="number" id="amount" name="amount"
                        style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;"
-                       placeholder="Összeg" step="0.01" required>
+                       placeholder="Összeg" step="0.01" min="0" required>
             </div>
 
             <!-- Submit Button -->
@@ -304,7 +304,7 @@ if (isset($_POST['submit2'])) {
                 <label for="amountoff" style="font-weight: bold;">Add meg az összeget:</label>
                 <input type="number" id="amountoff" name="amountoff"
                        style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;"
-                       placeholder="Összeg" step="0.01" required>
+                       placeholder="Összeg" step="0.01" min="0" required>
             </div>
 
             <!-- Submit Button -->

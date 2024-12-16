@@ -213,7 +213,7 @@ $currencyNamesHu = [
     <h1>Valutaváltás</h1>
     <form method="post">
         <label for="amount">Összeg:</label>
-        <input type="number" id="amount" name="amount"  step="0.01" required>
+        <input type="number" id="amount" name="amount"  step="0.01" min="0" required>
         <label for="result">Összeg: </label><?php echo floor($resultConvert * 100) / 100 . " " . $targetCurrency; ?>
         <p style="display: <?php echo $error ?>">Nincs elég összeg a tárcában!</p>
 

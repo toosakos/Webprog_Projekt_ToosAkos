@@ -101,7 +101,7 @@ $currencyNamesHu = [
     <h1>Kalkulátor</h1>
     <form method="post" action="">
         <label for="amount">Összeg:</label>
-        <input type="number" id="amount" name="amount" step="0.01" required>
+        <input type="number" id="amount" name="amount" step="0.01" min="0" required>
         <label for="result">Összeg: </label><?php echo floor($result * 100) / 100 . " " . $targetCurrency; ?>
 
         <div class="convert">
