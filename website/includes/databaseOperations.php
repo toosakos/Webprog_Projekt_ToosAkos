@@ -1,6 +1,6 @@
 <?php
 
-function convertCurrency($conn, $amount, $fromCurrency, $toCurrency) : float
+function convertCurrency($conn, $amount, $fromCurrency, $toCurrency): float
 {
     $sql = "SELECT rate FROM currencies WHERE currencybase = '$fromCurrency' AND currencytarget = '$toCurrency'";
     $rate = $conn->query($sql)->fetch_assoc();
@@ -55,12 +55,6 @@ function convertIntoNewCurrency($conn, $baseCurrency, $oldAmmount, $targetCurren
     $stmt->close();
 
 
-    $sql = "INSERT INTO transactions (currencybase, currencytarget, amountbase, amounttarget, transaction_date, users_id) values (?, ?, ?, ?, ?, ?)";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param('ssddsi', $baseCurrency, $targetCurrency, $oldAmmount, $startingAmount, $createdAt ,$id);
-    $stmt->execute();
-    $stmt->close();
-
 }
 
 function convertIntoExistingCurrency($conn, $baseCurrency, $oldAmmount, $targetCurrency, $startingAmount, $id, $createdAt): void
@@ -77,12 +71,6 @@ function convertIntoExistingCurrency($conn, $baseCurrency, $oldAmmount, $targetC
     $stmt->execute();
     $stmt->close();
 
-
-    $sql = "INSERT INTO transactions (currencybase, currencytarget, amountbase, amounttarget, transaction_date, users_id) values (?, ?, ?, ?, ?, ?)";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param('ssddsi', $baseCurrency, $targetCurrency, $oldAmmount, $startingAmount, $createdAt ,$id);
-    $stmt->execute();
-    $stmt->close();
 
 }
 

@@ -64,11 +64,13 @@ if (isset($_POST["submit"])) {
             }
             $newAmmount = currentAmount($conn, $targetCurrency, $id) + $startingAmount;
             convertIntoExistingCurrency($conn, $baseCurrency, $walletAmount, $targetCurrency, $newAmmount, $id, $createdAt);
+            recordTransaction($conn, $id, $baseCurrency, $targetCurrency, $inputAmount, $startingAmount, $createdAt);
 
             $status = "Sikeres Valutaváltás!";
 
         } else {
             convertIntoNewCurrency($conn, $baseCurrency, $walletAmount, $targetCurrency, $startingAmount, $id, $createdAt);
+            recordTransaction($conn, $id, $baseCurrency, $targetCurrency, $inputAmount, $startingAmount, $createdAt);
 
             $status = "Sikeres Valutaváltás!";
         }
