@@ -9,7 +9,7 @@ if(isset($_POST['submit'])){
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bejelentkezés / Regisztráció</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="../css/style.css">
     <script>
         function toggleForms() {
             const registrationForm = document.getElementById('registration-form');
@@ -36,7 +36,7 @@ if(isset($_POST['submit'])){
 <main>
     <div id="registration-form">
         <h1>Regisztráció</h1>
-        <form method="post" action="register.php">
+        <form method="post" action="../scripts/register.php">
             <label for="new-username">Felhasználónév:</label>
             <input type="text" id="new-username" name="new-username" required>
 
@@ -53,7 +53,7 @@ if(isset($_POST['submit'])){
 
     <div id="login-form" style="display: none;">
         <h1>Bejelentkezés</h1>
-        <form method="post" action="authenticate.php">
+        <form method="post" action="../scripts/authenticate.php">
             <label for="username">Felhasználónév:</label>
             <input type="text" id="username" name="username" required>
 
