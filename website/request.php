@@ -9,15 +9,6 @@ $conn = $db->connect();
 $currenciesForUrl = ["RON","EUR","USD","GBP","HUF","PLN","CHF","CAD","AUD","BGN","RSD","MDL","NOK","SEK","DKK","TRY","RUB","JPY","CNY","CZK","ILS"];
 $strCurrenciesForUrl = implode(",", $currenciesForUrl);
 
-// Prepare CSV file for writing
-$csvFile = fopen("exchange_rates.csv", "w");
-if (!$csvFile) {
-    die("Failed to create CSV file.");
-}
-
-// Write CSV headers
-fputcsv($csvFile, ["Base Currency", "Target Currency", "Rate"]);
-
 $allCurrenicies = [];
 
 for ($i = 0; $i < count($currenciesForUrl); $i++) {
@@ -55,17 +46,11 @@ for ($i = 0; $i < count($currenciesForUrl); $i++) {
 
     foreach ($currencies["rates"] as $targetCurrency => $rate) {
         $baseCurrency->addCurrencyRate($targetCurrency, $rate);
-
-        // Write to CSV file
-        fputcsv($csvFile, [$currencies["base"], $targetCurrency, $rate]);
     }
 
     $allCurrenicies[] = $baseCurrency;
     echo "Processed base currency: " . $baseCurrency->getCurrencyCode() . "\n";
 }
-
-// Close the CSV file
-fclose($csvFile);
 
 // Prepare SQL statement for inserting data into the database
 $sql = "
@@ -99,4 +84,4 @@ foreach ($allCurrenicies as $currency) {
 $stmt->close();
 $conn->close();
 
-echo "Exchange rates successfully uploaded to the database and saved in exchange_rates.csv.";
+echo "Exchange rates successfully uploaded to the database.";

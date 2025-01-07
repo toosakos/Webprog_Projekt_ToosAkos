@@ -1,14 +1,22 @@
 <?php
 include_once "Database.php";
+include "databaseOperations.php";
+include "currencyData.php";
+
 session_start();
 if (!isset($_SESSION['loggedin']) && !$_SESSION['loggedin']) {
     header('Location: login-register.php');
 }
 
+$currencyData = new CurrencyData();
+$currenciesForUrl = $currencyData->currenciesForUrl;
+$currencyNamesHu = $currencyData->currencyNamesHu;
+
+
 $targetCurrency = "";
 $error = "none";
 $bruh = "none";
-if (isset($_SESSION["bruh"])){
+if (isset($_SESSION["bruh"])) {
     $bruh = $_SESSION["bruh"];
     unset($_SESSION["bruh"]);
 }
@@ -37,124 +45,37 @@ while ($row = $result->fetch_assoc()) {
 $resultConvert = 0;
 
 if (isset($_POST["submit"])) {
-    $amount = $_POST["amount"];
+    $inputAmount = $_POST["amount"];
     $baseCurrency = $_POST["from-currency"];
     $targetCurrency = $_POST["to-currency"];
-    if ($amount > $walletAmounts[$baseCurrency]) {
+    if ($inputAmount > $walletAmounts[$baseCurrency]) {
         $error = "block";
     } else {
-        $sql = "SELECT rate FROM currencies WHERE currencybase = '$baseCurrency' AND currencytarget = '$targetCurrency'";
-        $rate = $conn->query($sql)->fetch_assoc();
-        $rate = $rate["rate"];
-        $resultConvert = $rate * $amount;
+        $startingAmount = convertCurrency($conn, $inputAmount, $baseCurrency, $targetCurrency);
+        $createdAt = date("Y-m-d H:i:s", time());
+        $resultConvert = $startingAmount;
+        $walletAmount = currentAmount($conn, $baseCurrency, $id) - $inputAmount;
 
+        if (isExistingWalletCurrency($conn, $targetCurrency, $id)) {
+            if ($baseCurrency == $targetCurrency) {
+                $_SESSION["bruh"] = "block";
+                header('Location: exchange.php');
+                exit;
+            }
+            $newAmmount = currentAmount($conn, $targetCurrency, $id) + $startingAmount;
+            convertIntoExistingCurrency($conn, $baseCurrency, $walletAmount, $targetCurrency, $newAmmount, $id, $createdAt);
 
-    $sql = "SELECT EXISTS(SELECT 1 FROM wallet WHERE currency_code = ? and users_id = ?)";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param('si', $targetCurrency, $id);
-    $stmt->execute();
-    $stmt->bind_result($exists);
-    $stmt->fetch();
-    $stmt->close();
+            $status = "Sikeres Valutaváltás!";
 
-    if ($exists) {
-        $sql = "SELECT amount FROM wallet WHERE currency_code = ? and users_id = ?";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param('si', $targetCurrency, $id);
-        $stmt->execute();
-        $stmt->bind_result($amountWallet);
-        $stmt->fetch();
-        $stmt->close();
+        } else {
+            convertIntoNewCurrency($conn, $baseCurrency, $walletAmount, $targetCurrency, $startingAmount, $id, $createdAt);
 
-        if ($baseCurrency == $targetCurrency) {
-            $_SESSION["bruh"] = "block";
-            header('Location: exchange.php');
-            exit;
+            $status = "Sikeres Valutaváltás!";
         }
-
-        $oldAmmount = $walletAmounts[$baseCurrency] - $amount;
-        $newAmmount = $amountWallet + $resultConvert;
-
-        $sql = "UPDATE wallet SET amount = ? WHERE users_id = ? and currency_code = ?";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param('dis', $oldAmmount, $id, $baseCurrency);
-        $stmt->execute();
-        $stmt->close();
-
-        $sql = "UPDATE wallet SET amount = ? WHERE users_id = ? and currency_code = ?";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param('dis', $newAmmount, $id, $targetCurrency);
-        $stmt->execute();
-        $stmt->close();
-
-        $createdAt = date("Y-m-d H:i:s", time());
-        $sql = "INSERT INTO transactions (currencybase, currencytarget, amountbase, amounttarget, transaction_date, users_id) values (?, ?, ?, ?, ?, ?)";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param('ssddsi', $baseCurrency, $targetCurrency, $amount, $resultConvert, $createdAt ,$id);
-        $stmt->execute();
-        $stmt->close();
-
-        $status = "Sikeres Valutaváltás!";
-
-    } else {
-        $startingAmount = $resultConvert;
-        $baseCurrencyCode = $_POST["to-currency"];
-        $createdAt = date("Y-m-d H:i:s", time());
-
-        $oldAmmount = $walletAmounts[$baseCurrency] - $amount;
-
-        $sql = "UPDATE wallet SET amount = ? WHERE users_id = ? and currency_code = ?";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param('dis', $oldAmmount, $id, $baseCurrency);
-        $stmt->execute();
-        $stmt->close();
-
-        $sql = 'INSERT INTO wallet (amount, currency_code, updated_at, users_id) VALUES (?, ?, ?, ?)';
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param('dssi', $startingAmount, $baseCurrencyCode, $createdAt, $id);
-        $stmt->execute();
-        $stmt->close();
-
-        $oldAmmount = $walletAmounts[$baseCurrency] - $amount;
-
-        $sql = "INSERT INTO transactions (currencybase, currencytarget, amountbase, amounttarget, transaction_date, users_id) values (?, ?, ?, ?, ?, ?)";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param('ssddsi', $baseCurrency, $targetCurrency, $amount, $startingAmount, $createdAt ,$id);
-        $stmt->execute();
-        $stmt->close();
-
-        $status = "Sikeres Valutaváltás!";
-    }
     }
 
-$conn->close();
+    $conn->close();
 }
-
-// Currency data
-$currenciesForUrl = ["RON", "EUR", "USD", "GBP", "HUF", "PLN", "CHF", "CAD", "AUD", "BGN", "RSD", "MDL", "NOK", "SEK", "DKK", "TRY", "RUB", "JPY", "CNY", "CZK", "ILS"];
-$currencyNamesHu = [
-    "RON" => "Román lej",
-    "EUR" => "Euró",
-    "USD" => "Amerikai dollár",
-    "GBP" => "Brit font",
-    "HUF" => "Magyar forint",
-    "PLN" => "Lengyel zloty",
-    "CHF" => "Svájci frank",
-    "CAD" => "Kanadai dollár",
-    "AUD" => "Ausztrál dollár",
-    "BGN" => "Bolgár leva",
-    "RSD" => "Szerb dinár",
-    "MDL" => "Moldován lej",
-    "NOK" => "Norvég korona",
-    "SEK" => "Svéd korona",
-    "DKK" => "Dán korona",
-    "TRY" => "Török líra",
-    "RUB" => "Orosz rubel",
-    "JPY" => "Japán jen",
-    "CNY" => "Kínai jüan",
-    "CZK" => "Cseh korona",
-    "ILS" => "Izraeli sékel"
-];
 
 
 ?>
@@ -213,7 +134,7 @@ $currencyNamesHu = [
     <h1>Valutaváltás</h1>
     <form method="post">
         <label for="amount">Összeg:</label>
-        <input type="number" id="amount" name="amount"  step="0.01" min="0" required>
+        <input type="number" id="amount" name="amount" step="0.01" min="0" required>
         <label for="result">Összeg: </label><?php echo floor($resultConvert * 100) / 100 . " " . $targetCurrency; ?>
         <p style="display: <?php echo $error ?>">Nincs elég összeg a tárcában!</p>
 
@@ -245,8 +166,7 @@ $currencyNamesHu = [
         <button type="submit" name="submit">Számítás</button>
         <p style="display: <?php echo $bruh ?>">Nem lehet egy valutát saját magára váltani!</p>
     </form>
-    <a href="dashboard.php"><?php echo $status?></a>
+    <a href="dashboard.php"><?php echo $status ?></a>
 </main>
 </body>
 </html>
-

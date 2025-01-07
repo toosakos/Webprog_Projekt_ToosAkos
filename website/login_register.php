@@ -1,5 +1,5 @@
 <?php
-if(isset($_POST['submit'])){
+if(isset($_SESSION['loggedin']) && !$_SESSION['loggedin']){
     header('location:dashboard.php');
 }
 ?>
